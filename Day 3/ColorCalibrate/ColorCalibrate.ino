@@ -16,20 +16,30 @@ void setup(){
 		pinMode(colorSensorPins[i], OUTPUT);
 	}
 	pinMode(ldrPin,INPUT);
+	autoCalibrate();
 }
 
 void loop(){
-	autoCalibrate();
-	
+	int random = sense();
 }
 
-int sense(){
-	allLow();
-	int max = 0;
-	return max;
+int sense(){				//senses the color and returns the index of the colorPin
+	allLow(); 
+	rgbCalc();
+	maxi = iofmin(rgb);
+	colorPrint(maxi);
+	return maxi;
 }
 
-void rgbCalc(){
+void colorPrint(int x){  	//prints the color of corresponding color pin
+	switch(x){
+	case 0: Serial.println("#RED#");break;
+	case 1: Serial.println("#GREEN#");break;
+	case 2: Serial.println("#BLUE#");break;	
+	}	
+}
+
+void rgbCalc(){				//calculates the rgb values at this instant
 	for (int i = 0; i < 3; ++i)
 		{
 			digitalWrite(colorSensorPins[i],HIGH);
@@ -38,7 +48,7 @@ void rgbCalc(){
 			digitalWrite(colorSensorPins[i],LOW);
             
 		}
-	rgbDisplay();
+	rgbDisplay();		
 }
 
 void autoCalibrate(){
@@ -82,7 +92,7 @@ void allLow(){				//LOWs all the LED pins																								//Sets the RGB 
 	}
 }
 
-void rgbDisplay(){			//Displays RGB values
+void rgbDisplay(){			//displays RGB values
 	Serial.print("R: ");
 	Serial.print(rgb[0]);
 	Serial.print("  G: ");
@@ -91,16 +101,16 @@ void rgbDisplay(){			//Displays RGB values
 	Serial.println(rgb[2]);
 }
 
-int iplus(int x){
+int iplus(int x){			//increments by 1 in a ciruclar fashion of max 2 (i.e. 2+1 = 0)
 	//Serial.println(x);
 	x++;
 	if(x>2)
 	return 0;
 	else
-	return x;
+	return x;		
 }
 
-void ldrDisp(){
+void ldrDisp(){				//displays the ldrpin value, the max value and the analod value
 	Serial.print(maxv);
 	Serial.print(" > "); 
 	Serial.print(buff); 
@@ -108,9 +118,15 @@ void ldrDisp(){
 	Serial.println(colorSensorValues[maxi]);
 }
 
-int iofmax(int x[]){
+int iofmax(int x[]){		//returns the index of the maximum value in the array
 	int y = x[0]>x[1]?0:1;
 	y = x[y]>x[2]?y:2;
+	return y;		
+}
+
+int iofmin(int x[]){		//returns the index of the minimum value in the array
+	int y = x[0]<x[1]?0:1;
+	y = x[y]<x[2]?y:2;
 	return y;
 }
 
