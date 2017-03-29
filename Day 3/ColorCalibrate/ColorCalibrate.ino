@@ -1,10 +1,13 @@
 //#include <Servo.h>
 //Servo myservo; int whitePos = 100;
+int delayTime = 1000, steps = 2;																
+
 int colorSensorPins[3] = {9,10,11};  //r,g,b,LDR
+int colorSensorValues[3] = {255,255,255};
 int ldrPin = A2; //LDR pin
-int rgb[3] = {0,0,0};
-int delayTime = 1000;
-int maxi,flag = 1, maxv, steps = 2, t = 255;
+int rgb[3] = {0,0,0}, buff = 0;		//buff is a variable that I use to store values temprorarily across code
+
+int maxi,flag = 1, maxv, t = 255;
 void setup(){
 	//myservo.attach(6);
 	Serial.begin(9600);
@@ -17,7 +20,7 @@ void setup(){
 
 void loop(){
 	autoCalibrate();
-	//Serial.print("Done");
+	
 }
 
 void manualCalibrate(){
@@ -36,11 +39,9 @@ void manualCalibrate(){
 }
 
 void autoCalibrate(){
-	Serial.println("Calibration begun");
+	Serial.println("<-Calibration begun->");
 	//myservo.write(whitePos);delay(100);//Rotate to white Patch
-
-
-	allLow();Serial.println("allLow");
+	allLow();//Serial.println("allLow");
 
 	for (int i = 0; i < 3; ++i)
 		{
@@ -54,24 +55,31 @@ void autoCalibrate(){
 		maxi = rgb[0]>rgb[1]?0:1;
 		maxi = rgb[maxi]>rgb[2]?maxi:2;
 		maxv = rgb[maxi];
+	
+		for (int xyz = 0; xyz < 2; ++xyz)
+		{	
+			maxi = iplus(maxi);														// maxv - Largest value
+			digitalWrite(colorSensorPins[maxi], HIGH);								// maxi - pin index of largest LED value and incremented after that
+      	
+      		delay(delayTime);
+      		ldrDisp();
+      		buff = 0;
+			while(buff<maxv)
+				{
+				 	delay(delayTime);
+				 	analogWrite(colorSensorPins[maxi],colorSensorValues[maxi]);
+            	    colorSensorValues[maxi] -= steps;
+            	    delay(delayTime);
+            	    buff = analogRead(ldrPin);
+					ldrDisp();
+				}
+			rgb[maxi] = buff;
+			digitalWrite(colorSensorPins[maxi], LOW);
+			Serial.println("Done a Calibration");
+		}
 
-		Serial.print("Maxi and maxv");Serial.println(maxi);																								//Begin 1
-			maxi = iplus(maxi);
-			digitalWrite(colorSensorPins[maxi], HIGH);delay(delayTime);
-      ldrDisp();
-			while(1){delay(delayTime);
-			 	analogWrite(colorSensorPins[maxi],t);
-                                t-= steps;
-                                Serial.print("t: ");Serial.println(t);
-				delay(delayTime);
-				//rgbDisplay();
-				ldrDisp();delay(delayTime);
-			}
-			digitalWrite(maxi, LOW);
-			Serial.println("Done 1 Calibration");
-
-	Serial.write("Calibration Done");
 	rgbDisplay();
+	Serial.println("<-Calibration Done->");
 }
 
 void allLow(){																										//Sets the RGB to LOW
@@ -89,8 +97,8 @@ void rgbDisplay(){															//Displays RGB values
 	Serial.println(rgb[2]);
 }
 int iplus(int x){
+	//Serial.println(x);
 	x++;
-	Serial.println(x);
 	if(x>2)
 	return 0;
 	else
@@ -98,5 +106,15 @@ int iplus(int x){
 }
 
 void ldrDisp(){
-	Serial.print(maxv);Serial.print(" > "); Serial.println(analogRead(ldrPin));
+	Serial.print(maxv);
+	Serial.print(" > "); 
+	Serial.print(buff); 
+	Serial.print(" : "); 
+	Serial.println(colorSensorValues[maxi]);
 }
+
+
+
+/*
+
+*/
