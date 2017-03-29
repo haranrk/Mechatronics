@@ -6,8 +6,8 @@ int colorSensorPins[3] = {9,10,11};  //r,g,b,LDR
 int colorSensorValues[3] = {255,255,255};
 int ldrPin = A2; //LDR pin
 int rgb[3] = {0,0,0}, buff = 0;		//buff is a variable that I use to store values temprorarily across code
-
 int maxi,flag = 1, maxv, t = 255;
+
 void setup(){
 	//myservo.attach(6);
 	Serial.begin(9600);
@@ -23,47 +23,40 @@ void loop(){
 	
 }
 
-void manualCalibrate(){
-	//myservo.write(whitePos);delay(100);//Rotate to white Patch
+int sense(){
 	allLow();
-	while(!(Serial.read()=='1')){
-		for (int i = 0; i < 3; ++i)
-		{
-			digitalWrite(colorSensorPins[i],HIGH);
-			delay(delayTime);
-			rgb[i] = analogRead(ldrPin);
-			digitalWrite(colorSensorPins[i],LOW);
-		}
-		rgbDisplay();
-	}
+	int max = 0;
+	return max;
 }
 
-void autoCalibrate(){
-	Serial.println("<-Calibration begun->");
-	//myservo.write(whitePos);delay(100);//Rotate to white Patch
-	allLow();//Serial.println("allLow");
-
+void rgbCalc(){
 	for (int i = 0; i < 3; ++i)
 		{
 			digitalWrite(colorSensorPins[i],HIGH);
 			delay(delayTime);
 			rgb[i] = analogRead(ldrPin);
 			digitalWrite(colorSensorPins[i],LOW);
-                        rgbDisplay();
+            
 		}
+	rgbDisplay();
+}
 
-		maxi = rgb[0]>rgb[1]?0:1;
-		maxi = rgb[maxi]>rgb[2]?maxi:2;
-		maxv = rgb[maxi];
+void autoCalibrate(){
+	Serial.println("<-Calibration begun->");
+	//myservo.write(whitePos);delay(100);//Rotate to white Patch
+	allLow();
+	rgbCalc();
+	maxi = iofmax(rgb);
+	maxv = rgb[maxi];
 	
-		for (int xyz = 0; xyz < 2; ++xyz)
+	for (int xyz = 0; xyz < 2; ++xyz)
 		{	
 			maxi = iplus(maxi);														// maxv - Largest value
 			digitalWrite(colorSensorPins[maxi], HIGH);								// maxi - pin index of largest LED value and incremented after that
       	
       		delay(delayTime);
-      		ldrDisp();
       		buff = 0;
+      		ldrDisp();
 			while(buff<maxv)
 				{
 				 	delay(delayTime);
@@ -82,13 +75,14 @@ void autoCalibrate(){
 	Serial.println("<-Calibration Done->");
 }
 
-void allLow(){																										//Sets the RGB to LOW
+void allLow(){				//LOWs all the LED pins																								//Sets the RGB to LOW
 	for (int i = 0; i < 3; ++i)
 	{
 		digitalWrite(colorSensorPins[i],LOW);
 	}
 }
-void rgbDisplay(){															//Displays RGB values
+
+void rgbDisplay(){			//Displays RGB values
 	Serial.print("R: ");
 	Serial.print(rgb[0]);
 	Serial.print("  G: ");
@@ -96,6 +90,7 @@ void rgbDisplay(){															//Displays RGB values
 	Serial.print("  B: ");
 	Serial.println(rgb[2]);
 }
+
 int iplus(int x){
 	//Serial.println(x);
 	x++;
@@ -113,7 +108,19 @@ void ldrDisp(){
 	Serial.println(colorSensorValues[maxi]);
 }
 
+int iofmax(int x[]){
+	int y = x[0]>x[1]?0:1;
+	y = x[y]>x[2]?y:2;
+	return y;
+}
 
+void manualCalibrate(){
+	//myservo.write(whitePos);delay(100);//Rotate to white Patch
+	allLow();
+	while(!(Serial.read()=='1')){
+		rgbCalc();
+	}
+}
 
 /*
 
