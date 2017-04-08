@@ -1,30 +1,63 @@
 
 #include <Servo.h>
-Servo myservo; int whitePos = 180;
-int delayTime = 500, steps = 2;																
+Servo myservo; int whitePos = 180, servoSteps = -10, servoPos = 180; 
+int delayTime = 500, steps = 2, senseThreshold = 120;																
 
+int locations[2];
 int colorSensorPins[3] = {9,10,11};  //r,g,b,LDR
-int colorSensorValues[3] = {255,255,255};
+int colorSensorValues[3] = {230,175,255};
 int ldrPin = A2; //LDR pin
 int rgb[3] = {0,0,0}, buff = 0;		//buff is a variable that I use to store values temprorarily across code
 int maxi,flag = 1, maxv, t = 255;
 
+void servoMove(int pos,int servoDelay=2000){			//Moves the servo to the position specified by value pos 
+	Serial.println("Moving Servo....");
+	//int servoDelay = 2000;
+	myservo.attach(5);
+	myservo.write(pos);servoPos = pos;
+	delay(servoDelay);
+	myservo.detach();
+	Serial.println("Servo moved");
+}
 void setup(){
 	Serial.begin(9600);
-	servoMove(whitePos);
+	//servoMove(whitePos);
 	autoCalibrate();
 }
 
 void loop(){
-	int random = sense();
+	if(detectColor(1))
+	{
+		Serial.println("At the Pickup locations");
+	}
+}
+
+int detectColor(int colorCode){				//keeps moving until it reaches the specified color
+	while(colorCode = sense()){
+	servoPos += servoSteps;
+	if (servoPos<=0)
+	{
+		servoPos = 180;
+	}
+	servoMove(servoPos,1000);
+	}
+	return 1;
 }
 
 int sense(){				//senses the color and returns the index of the colorPin
 	allLow(); 
 	rgbCalc();
 	maxi = iofmin(rgb);
-	colorPrint(maxi);
-	return maxi;
+	if (rgb[iplus(maxi)]-rgb[maxi]>=senseThreshold)
+	{
+		colorPrint(maxi);
+		return maxi;
+	}
+	else
+	{
+		colorPrint(-1);
+		return -1;
+	}
 }
 
 void colorPrint(int x){  	//prints the color of corresponding color pin
@@ -32,6 +65,7 @@ void colorPrint(int x){  	//prints the color of corresponding color pin
 	case 0: Serial.println("#RED#");break;
 	case 1: Serial.println("#GREEN#");break;
 	case 2: Serial.println("#BLUE#");break;	
+	case -1: Serial.println("#NONE#");
 	}	
 }
 
@@ -44,17 +78,9 @@ void rgbCalc(){				//calculates the rgb values at this instant
 			digitalWrite(colorSensorPins[i],LOW);
             
 		}
-	rgbDisplay();		
+	//rgbDisplay();		
 }
-void servoMove(int pos){			//Moves the servo to the position specified by value pos 
-	Serial.println("Moving Servo....");
-	int servoDelay = 2000;
-	myservo.attach(5);
-	myservo.write(pos);
-	delay(servoDelay);
-	myservo.detach();
-	Serial.println("Servo moved");
-}
+
 void autoCalibrate(){
 	Serial.println("<-Calibration begun->");
 	servoMove(whitePos);								//Rotate to white Patch
