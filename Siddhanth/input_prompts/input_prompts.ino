@@ -29,28 +29,66 @@ void calib_option()
 
 void col_option()
 {
+  bool valid=false;
+  char pick_col, drop_col;
+  
   Serial.print("\n\n\nEnter pickup colour (r/g/b)");
 
   while(1)
   {
     pick_col=Serial.read();
 
-    if(pick_col=='r'||pick_col=='g'||pick_col=='b')
+    switch(pickcol)
     {
+      case 'r':
+      case 'R':
+      location[0]=1;
+      valid=true;
       break;
+      
+      case 'g':
+      case 'G':
+      location[0]=2;
+      valid=true;
+      break;
+      
+      case 'b':
+      case 'B':
+      location[0]=3;
+      valid=true;
     }
+
+    if(valid==true) break;
   }
   
   Serial.print("\n\nEnter drop colour (r/g/b)\n\n\n");
+  valid=false;
 
   while(1)
   {
     drop_col=Serial.read();
 
-    if(drop_col=='r'||drop_col=='g'||drop_col=='b')
+    switch(dropcol)
     {
+      case 'r':
+      case 'R':
+      location[1]=1;
+      valid=true;
       break;
+      
+      case 'g':
+      case 'G':
+      location[1]=2;
+      valid=true;
+      break;
+      
+      case 'b':
+      case 'B':
+      location[1]=3;
+      valid=true;
     }
+
+    if(valid==true) break;
   }
 }
 
