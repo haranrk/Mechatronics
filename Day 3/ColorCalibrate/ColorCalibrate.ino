@@ -1,6 +1,7 @@
-//#include <Servo.h>
-//Servo myservo; int whitePos = 100;
-int delayTime = 1000, steps = 2;																
+
+#include <Servo.h>
+Servo myservo; int whitePos = 180;
+int delayTime = 500, steps = 2;																
 
 int colorSensorPins[3] = {9,10,11};  //r,g,b,LDR
 int colorSensorValues[3] = {255,255,255};
@@ -9,13 +10,8 @@ int rgb[3] = {0,0,0}, buff = 0;		//buff is a variable that I use to store values
 int maxi,flag = 1, maxv, t = 255;
 
 void setup(){
-	//myservo.attach(6);
 	Serial.begin(9600);
-	for (int i = 0; i < 3; ++i)
-	{
-		pinMode(colorSensorPins[i], OUTPUT);
-	}
-	pinMode(ldrPin,INPUT);
+	servoMove(whitePos);
 	autoCalibrate();
 }
 
@@ -42,7 +38,7 @@ void colorPrint(int x){  	//prints the color of corresponding color pin
 void rgbCalc(){				//calculates the rgb values at this instant
 	for (int i = 0; i < 3; ++i)
 		{
-			digitalWrite(colorSensorPins[i],HIGH);
+			analogWrite(colorSensorPins[i],255);
 			delay(delayTime);
 			rgb[i] = analogRead(ldrPin);
 			digitalWrite(colorSensorPins[i],LOW);
@@ -50,10 +46,18 @@ void rgbCalc(){				//calculates the rgb values at this instant
 		}
 	rgbDisplay();		
 }
-
+void servoMove(int pos){			//Moves the servo to the position specified by value pos 
+	Serial.println("Moving Servo....");
+	int servoDelay = 2000;
+	myservo.attach(5);
+	myservo.write(pos);
+	delay(servoDelay);
+	myservo.detach();
+	Serial.println("Servo moved");
+}
 void autoCalibrate(){
 	Serial.println("<-Calibration begun->");
-	//myservo.write(whitePos);delay(100);//Rotate to white Patch
+	servoMove(whitePos);								//Rotate to white Patch
 	allLow();
 	rgbCalc();
 	maxi = iofmax(rgb);
@@ -130,13 +134,12 @@ int iofmin(int x[]){		//returns the index of the minimum value in the array
 	return y;
 }
 
-void manualCalibrate(){
-	//myservo.write(whitePos);delay(100);//Rotate to white Patch
-	allLow();
-	while(!(Serial.read()=='1')){
-		rgbCalc();
-	}
-}
+// void manualCalibrate(){
+// 	allLow();
+// 	while(!(Serial.read()=='1')){
+// 		rgbCalc();
+// 	}
+// }
 
 /*
 
