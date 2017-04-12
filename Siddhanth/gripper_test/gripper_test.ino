@@ -9,6 +9,6 @@ void loop()
 {
   digitalWrite(gripper, HIGH);
   delay(1000);
-  digitalWrite(gripper, LOW);
+  //digitalWrite(gripper, LOW);
   delay(1000);
 }

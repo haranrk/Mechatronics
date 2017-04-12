@@ -323,7 +323,7 @@ void pick()
 {
   sweep(angsweep-angoffset);
 
-  for(angpick=45;angpick<=90;++angpick)
+  for(angpick=90;angpick<=180;++angpick)
   {
     arm_rotate(angpick);
 
