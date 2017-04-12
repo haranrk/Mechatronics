@@ -26,14 +26,22 @@ void setup(){
 }
 
 void loop(){
+	if(detectColor(0))
+	{
+		Serial.println("At the Pickup location 1");
+	}
 	if(detectColor(1))
 	{
-		Serial.println("At the Pickup locations");
+		Serial.println("At the Pickup location 2");
+	}
+	if(detectColor(2))
+	{
+		Serial.println("At the Pickup locations 3");
 	}
 }
 
 int detectColor(int colorCode){				//keeps moving until it reaches the specified color
-	while(colorCode = sense()){
+	while(colorCode != sense()){
 	servoPos += servoSteps;
 	if (servoPos<=0)
 	{

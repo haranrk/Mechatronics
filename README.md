@@ -1,2 +1,3 @@
-# Mechatronics
-Arduino code for mechatronics lab
+## Mechatronics
+
+Arduino code for the Mechatronics course. 
