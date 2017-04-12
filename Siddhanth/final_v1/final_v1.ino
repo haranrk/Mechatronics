@@ -323,7 +323,7 @@ void pick()
 {
   sweep(angsweep-angoffset);
 
-  for(angpick=90;angpick<=180;++angpick)
+  for(angpick=0;angpick<=180;++angpick)
   {
     arm_rotate(angpick);
 
@@ -347,7 +347,7 @@ void drop()
   arm_rotate(angdrop);
   
   digitalWrite(gripper, LOW);
-  delay(gripper_delay);
+  delay(grip_delay);
 
   arm_rotate(0);
 }
