@@ -1,7 +1,8 @@
 
 #include <Servo.h>
-
+#include <LiquidCrystal.h>
 Servo pickservo; int pick_pin =  6,angoffset = 30, prox = A1, gripper = 7, grip_delay=5000, prox_thresh=1022, angdrop = 90;
+LiquidCrystal lcd(2, 3, 4, 8, 12, 13);
 //--------------------------------
 Servo myservo; int whitePos = 180, servoSteps = -10, servoPos = 180;  //Big Servo
 int delayTime = 500, steps = 2, senseThreshold = 69;																
@@ -25,6 +26,7 @@ void servoMove(int pos,int servoDelay=2000){			//Moves the servo to the position
 void setup(){
 	Serial.begin(9600);
 	pinMode(gripper, OUTPUT);
+	lcd.begin(16, 2);
 	//servoMove(whitePos);
 	autoCalibrate();
 }
@@ -86,6 +88,13 @@ void drop()
   arm_rotate(0);
 }
 
+void lcd_display(String text, int x=0, int y=0)
+{
+  lcd.clear();
+  lcd.setCursor(x, y);
+  lcd.print(text);
+}
+
 int detectColor(int colorCode){				//keeps moving until it reaches the specified color
 	while(colorCode != sense()){
 	servoPos += servoSteps;
@@ -120,6 +129,7 @@ void col_option()
   char pick_col, drop_col;
   
   Serial.print("\n\n\nEnter pickup colour (r/g/b)");
+  lcd_display("Enter pickup colour (r/g/b)");
 
   while(1)
   {
@@ -149,6 +159,7 @@ void col_option()
   }
   
   Serial.print("\n\nEnter drop colour (r/g/b)\n\n\n");
+  lcd_display("Enter drop colour (r/g/b)");
   valid=false;
 
   while(1)
