@@ -1,11 +1,14 @@
 
 #include <Servo.h>
-Servo myservo; int whitePos = 180, servoSteps = -10, servoPos = 180; 
-int delayTime = 500, steps = 2, senseThreshold = 120;																
 
-int locations[2];
+Servo pickservo; int pick_pin =  6,angoffset = 30, prox = A1, gripper = 7, grip_delay=5000, prox_thresh=1022, angdrop = 90;
+//--------------------------------
+Servo myservo; int whitePos = 180, servoSteps = -10, servoPos = 180;  //Big Servo
+int delayTime = 500, steps = 2, senseThreshold = 69;																
+
+int location[2];
 int colorSensorPins[3] = {9,10,11};  //r,g,b,LDR
-int colorSensorValues[3] = {230,175,255};
+int colorSensorValues[3] = {255,255,255};  //230,175,255
 int ldrPin = A2; //LDR pin
 int rgb[3] = {0,0,0}, buff = 0;		//buff is a variable that I use to store values temprorarily across code
 int maxi,flag = 1, maxv, t = 255;
@@ -21,23 +24,66 @@ void servoMove(int pos,int servoDelay=2000){			//Moves the servo to the position
 }
 void setup(){
 	Serial.begin(9600);
+	pinMode(gripper, OUTPUT);
 	//servoMove(whitePos);
 	autoCalibrate();
 }
 
 void loop(){
-	if(detectColor(0))
+	col_option();
+	if(detectColor(location[0]))
 	{
-		Serial.println("At the Pickup location 1");
+		Serial.print("------------At the Pickup location------");colorPrint(location[0]);
+   pick();
 	}
-	if(detectColor(1))
+	if(detectColor(location[1]))
 	{
-		Serial.println("At the Pickup location 2");
+		Serial.print("------------At the Drop location------");colorPrint(location[1]);
+   drop();
 	}
-	if(detectColor(2))
-	{
-		Serial.println("At the Pickup locations 3");
-	}
+	
+}
+
+void arm_rotate(int position)
+{
+  int delay_time=500;
+  
+  pickservo.attach(pick_pin);
+  pickservo.write(position);
+  delay(delayTime);
+  pickservo.detach();
+}
+
+void pick()
+{
+		
+  servoMove(servoPos-angoffset);
+  
+
+  for(int angpick=0;angpick<=180;angpick+=2)
+  {
+    arm_rotate(angpick);
+
+    if(analogRead(prox)>=prox_thresh)
+    {
+      digitalWrite(gripper, HIGH);
+      delay(grip_delay);
+      break;
+    }
+  }
+
+  arm_rotate(0);
+}
+void drop()
+{
+  servoMove(servoPos-angoffset);
+  
+  arm_rotate(angdrop);
+  
+  digitalWrite(gripper, LOW);
+  delay(grip_delay);
+
+  arm_rotate(0);
 }
 
 int detectColor(int colorCode){				//keeps moving until it reaches the specified color
@@ -68,6 +114,71 @@ int sense(){				//senses the color and returns the index of the colorPin
 	}
 }
 
+void col_option()
+{
+  bool valid=false;
+  char pick_col, drop_col;
+  
+  Serial.print("\n\n\nEnter pickup colour (r/g/b)");
+
+  while(1)
+  {
+    pick_col=Serial.read();
+
+    switch(pick_col)
+    {
+      case 'r':
+      case 'R':
+      location[0]=0;
+      valid=true;
+      break;
+      
+      case 'g':
+      case 'G':
+      location[0]=1;
+      valid=true;
+      break;
+      
+      case 'b':
+      case 'B':
+      location[0]=2;
+      valid=true;
+    }
+
+    if(valid==true) break;
+  }
+  
+  Serial.print("\n\nEnter drop colour (r/g/b)\n\n\n");
+  valid=false;
+
+  while(1)
+  {
+    drop_col=Serial.read();
+
+    switch(drop_col)
+    {
+      case 'r':
+      case 'R':
+      location[1]=0;
+      valid=true;
+      break;
+      
+      case 'g':
+      case 'G':
+      location[1]=1;
+      valid=true;
+      break;
+      
+      case 'b':
+      case 'B':
+      location[1]=2;
+      valid=true;
+    }
+
+    if(valid==true) break;
+  }
+}
+
 void colorPrint(int x){  	//prints the color of corresponding color pin
 	switch(x){
 	case 0: Serial.println("#RED#");break;
@@ -86,7 +197,7 @@ void rgbCalc(){				//calculates the rgb values at this instant
 			digitalWrite(colorSensorPins[i],LOW);
             
 		}
-	//rgbDisplay();		
+	rgbDisplay();		
 }
 
 void autoCalibrate(){
