@@ -36,6 +36,8 @@ void calib_option()
       Serial.print("\n\nManual Calibration");
       lcd_display("Manual");
       lcd_display("Calibration", 0, 1);
+
+      delay(1000);
       
       manualCalibrate();
       break;
@@ -45,6 +47,8 @@ void calib_option()
       Serial.print("\n\nAuto Calibration");
       lcd_display("Auto");
       lcd_display("Calibration", 0, 1);
+
+      delay(1000);
       
       autoCalibrate();
       break;
@@ -54,6 +58,8 @@ void calib_option()
       Serial.print("\n\nCalibration skipped");
       lcd_display("Calibration");
       lcd_display("skipped", 0, 1);
+
+      delay(1000);
       
       break;
     }

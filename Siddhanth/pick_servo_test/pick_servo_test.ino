@@ -16,11 +16,11 @@ void arm_rotate(int position)
 
 void pick()
 {
-  //sweep(angsweep-angoffset);
+  servoMove(servoPos-angoffset);
   int prox_thresh=1022;
   int grip_delay=5000;
 
-  for(int angpick=0;angpick<=180;angpick+=2)
+  for(int angpick=0;;angpick+=2)
   {
     arm_rotate(angpick);
 
@@ -30,6 +30,8 @@ void pick()
       delay(grip_delay);
       break;
     }
+
+    if(angpick==120) angpick=0;
   }
 
   arm_rotate(0);
