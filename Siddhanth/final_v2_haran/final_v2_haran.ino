@@ -1,7 +1,7 @@
 
 #include <Servo.h>
 #include <LiquidCrystal.h>
-Servo pickservo; int pick_pin =  6,angoffset = 40, prox = A1, gripper = 7, grip_delay=5000, prox_thresh=1022, angdrop = 90;
+Servo pickservo; int pick_pin =  6,angoffset = 40, prox = A1, gripper = 7, grip_delay=5000, prox_thresh=1020, angdrop = 90;
 LiquidCrystal lcd(2, 3, 4, 8, 12, 13);
 //--------------------------------
 Servo myservo; int whitePos = 180, servoSteps = -10, servoPos = 180;  //Big Servo
@@ -74,7 +74,7 @@ void pick()
       break;
     }
 
-    if(angpick==120) angpick=0;
+    if(angpick==100) angpick=0;
   }
 
   arm_rotate(0);
@@ -105,7 +105,7 @@ void lcd_display(String text, int x=0, int y=0)
 int detectColor(int colorCode){				//keeps moving until it reaches the specified color
 	while(colorCode != sense()){
 	servoPos += servoSteps;
-	if (servoPos<=0)
+	if (servoPos<=30)
 	{
 		servoPos = 180;
 	}
@@ -151,8 +151,9 @@ void calib_option()
     if(opt=='1')
     {
       Serial.println("\nManual Calibration");
+      Serial.println("\n(press 1 to continue)");
       lcd_display("Manual");
-      lcd_display("Calibration", 0, 1);
+      lcd_display("Calibration (1)", 0, 1);
       
       manualCalibrate();
       break;
@@ -316,8 +317,8 @@ void rgbCalc(){				//calculates the rgb values at this instant
 void potAdjust()
 {
   Serial.print("\n\nSet all potentiometers to minimum (press 1 to continue)");
-  lcd_display("Set pots");
-  lcd_display("to minimum", 0, 1);
+  lcd_display("Set pots to");
+  lcd_display("minimum (1)", 0, 1);
 
   while(Serial.read()!='1')
   {
