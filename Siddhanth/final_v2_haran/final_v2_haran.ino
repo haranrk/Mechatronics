@@ -406,6 +406,7 @@ int iofmin(int x[]){		//returns the index of the minimum value in the array
 }
 
 void manualCalibrate(){
+  servoMove(whitePos);
   allLow();
   while(!(Serial.read()=='1')){
   rgbCalc();
